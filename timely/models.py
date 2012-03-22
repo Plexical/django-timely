@@ -48,8 +48,16 @@ class Timely(models.Model):
     def save(self):
         if self.end is None:
             self.day = True
+
+        if self.day:
             self.start = datetime(self.start.year,
                                   self.start.month,
                                   self.start.day,
                                   0, 1, 0)
+        if self.day and self.end:
+            self.end = datetime(self.end.year,
+                                self.end.month,
+                                self.end.day,
+                                0, 0, 0)
+
         return super(Timely, self).save()
