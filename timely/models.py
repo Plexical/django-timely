@@ -48,6 +48,7 @@ class Timely(models.Model):
     def save(self):
         if self.end is None:
             self.day = True
+            self.end = self.start
 
         if self.day:
             self.start = datetime(self.start.year,
