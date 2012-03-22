@@ -8,8 +8,8 @@ now = lambda: datetime.now()
 
 class TimelyManager(models.Manager):
 
-    def later(self, start=None):
-        if start is None:
+    def period(self, start, end):
+        if start == 'now':
             start = now()
         return self.filter(start__gte=start).order_by('-start')
 
@@ -59,6 +59,6 @@ class Timely(models.Model):
             self.end = datetime(self.end.year,
                                 self.end.month,
                                 self.end.day,
-                                0, 0, 0)
+                                23, 59, 59)
 
         return super(Timely, self).save()
