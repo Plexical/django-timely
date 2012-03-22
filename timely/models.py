@@ -13,6 +13,11 @@ class TimelyManager(models.Manager):
             start = now()
         return self.filter(start__gte=start).order_by('-start')
 
+recurrence = (('yr', _("Yearly")),
+              ('mo', _("Monthly")),
+              ('we', _("Weekly")),
+              ('da', _("Daily")) )
+
 class Timely(models.Model):
 
     objects = TimelyManager()
@@ -26,10 +31,19 @@ class Timely(models.Model):
                                help_text=_("The end time must be later than "
                                            "the start time."))
     day = models.BooleanField(_("whole day"), default=False)
-    repeats = models.BooleanField(_("repeats"),
-                                  default=False)
-    every = models.IntegerField(_("repeats"),
-                                null=True)
+
+    recurrence = models.CharField(_("recurs"),
+                                  max_length=2,
+                                  choices=recurrence,
+                                  null=True)
+
+    period = models.IntegerField(_("repeat every"),
+                                 null=True)
+
+    repeats = models.IntegerField(_("number of times"),
+                                  null=True,
+                                  help_text=_("Blank means until manually "
+                                              "cancelled"))
 
     def save(self):
         if self.end is None:
