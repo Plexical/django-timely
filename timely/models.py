@@ -38,4 +38,4 @@ class Timely(models.Model):
                                   self.start.month,
                                   self.start.day,
                                   0, 1, 0)
-        return super(Reverse, self).save()
+        return super(Timely, self).save()
