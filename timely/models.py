@@ -1,10 +1,26 @@
-from datetime import datetime
+from datetime import datetime, timedelta
 
 from django.db import models
 
 from django.utils.translation import ugettext, ugettext_lazy as _
 
 now = lambda: datetime.now()
+
+def future(pt, nth, every, unit):
+    """
+    Calculates the timedelta needed to add to `pt` for it to happen
+    for the `nth` time `every` `unit`.
+    """
+    delta = nth * every
+    if unit == 'years':
+        # timedelta doesn't have years but that's no problem, years
+        # are nice and linear.
+        return datetime(pt.year + delta,
+                        pt.month,
+                        pt.day,
+                        pt.hour,
+                        pt.second)
+    return pt + timedelta(**{unit: delta})
 
 class TimelyManager(models.Manager):
 
