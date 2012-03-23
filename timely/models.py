@@ -82,3 +82,10 @@ class Timely(models.Model):
                                 23, 59, 59)
 
         return super(Timely, self).save()
+
+    def repetition(self, nth):
+        copy = deepcopy(self)
+        copy.pk = None
+        copy.start = future(self.start, nth, self.every, self.unit)
+        copy.end = future(self.end, nth, self.every, self.unit)
+        return copy
