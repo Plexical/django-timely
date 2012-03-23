@@ -1,10 +1,9 @@
 from django.contrib import admin
-from models import Timely
+
+from django.utils.translation import ugettext, ugettext_lazy as _
 
 class TimelyAdminMixin(admin.ModelAdmin):
     fieldsets = (
-        (None, {'fields': (
-                    ('start', 'end', 'day'),
-                    ('recurrence', 'period', 'repeats'))
-                }),
+        (_("When"),
+         {'fields': (('start', 'end', 'day'),) }),
     )
