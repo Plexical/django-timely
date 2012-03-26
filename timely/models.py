@@ -1,10 +1,18 @@
 from datetime import datetime, timedelta
 
+import times
+
 from django.db import models
+from django.conf import settings
 
 from django.utils.translation import ugettext, ugettext_lazy as _
 
-now = lambda: datetime.now()
+def apptime(dt, tz=None):
+    if dt == 'now':
+        dt = times.now()
+    if tz is None:
+        tz = settings.TIME_ZONE
+    return times.to_universal(dt, tz)
 
 def future(pt, nth, every, unit):
     """
@@ -25,9 +33,11 @@ def future(pt, nth, every, unit):
 class TimelyManager(models.Manager):
 
     def period(self, start, end):
-        if start == 'now':
-            start = now()
-        return self.filter(start__gte=start).order_by('-start')
+        if isinstance(start, basestring):
+            start = apptime(start)
+        if isinstance(end, basestring):
+            end = apptime(end)
+        return self.filter(start__gte=start).order_by('start')
 
 "Stored strings maps directly to datetime.timedelta parameter names"
 units = (('years', _("Year")),
