@@ -32,12 +32,16 @@ def future(pt, nth, every, unit):
 
 class TimelyManager(models.Manager):
 
-    def period(self, start, end):
+    def period(self, start, end=None):
         if isinstance(start, basestring):
             start = apptime(start)
         if isinstance(end, basestring):
             end = apptime(end)
-        return self.filter(start__gte=start).order_by('start')
+        if end is None:
+            end = apptime('2200-01-01')
+        return (self.filter(start__gte=start)
+                .filter(start__lt=end)
+                .order_by('start'))
 
 "Stored strings maps directly to datetime.timedelta parameter names"
 units = (('years', _("Year")),
