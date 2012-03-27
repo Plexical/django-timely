@@ -62,7 +62,7 @@ class Repetition(models.Model):
     every = models.IntegerField(_("every"),
                                 null=True)
 
-    unit = models.CharField("",
+    unit = models.CharField(_("unit"),
                             max_length=7,
                             choices=units)
 
