@@ -76,6 +76,7 @@ class Repetition(models.Model):
         # XXX the following line is probably wrong on SO many levels...
         if creating and self.repeats.count() == 0:
             first = self.first
+            self.repeats.add(first)
             for nth in range(1, self.repeat):
                 repeated = deepcopy(first)
                 repeated.pk = None
