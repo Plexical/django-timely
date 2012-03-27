@@ -1,3 +1,4 @@
+from copy import deepcopy
 from datetime import datetime, timedelta
 
 import times
@@ -65,6 +66,36 @@ class Repetition(models.Model):
                             max_length=7,
                             choices=units)
 
+    def save(self, *args, **kw):
+        # XXX will use generic.GenericForeignKey when I get time to
+        # learn about them and get admin inlines to work with them
+
+        creating = self.pk is None
+        res = super(Repetition, self).save(*args, **kw)
+
+        # XXX the following line is probably wrong on SO many levels...
+        if creating and self.repeats.count() == 0:
+            first = self.first
+            for nth in range(1, self.repeat):
+                repeated = deepcopy(first)
+                repeated.pk = None
+                repeated.start = future(first.start, nth, self.every, self.unit)
+                repeated.end = future(first.end, nth, self.every, self.unit)
+                repeated.save()
+                self.repeats.add(repeated)
+
+        return super(Repetition, self).save(*args, **kw)
+
+    def refresh(self, changed):
+        # XXX won't scale
+        old = type(changed).objects.get(pk=changed.pk)
+        delta_start = changed.start - old.start
+        delta_end = changed.end - old.end
+        for model in self.repeats.exclude(pk=changed.pk):
+            model.start += delta_start
+            model.end += delta_end
+            model.save(cascade=False) # is this ok???
+
 class Timely(models.Model):
 
     objects = TimelyManager()
@@ -79,7 +110,7 @@ class Timely(models.Model):
                                            "the start time."))
     day = models.BooleanField(_("whole day"), default=False)
 
-    def save(self):
+    def save(self, *args, **kwargs):
         if self.end is None:
             self.day = True
             self.end = self.start
@@ -95,11 +126,11 @@ class Timely(models.Model):
                                 self.end.day,
                                 23, 59, 59)
 
-        return super(Timely, self).save()
+        if kwargs.pop('cascade', True):
+            try:
+                self.repeats.get().refresh(self)
+            except:
+                # XXX failed to find the right DoesNotExist
+                pass
 
-    def repetition(self, nth):
-        copy = deepcopy(self)
-        copy.pk = None
-        copy.start = future(self.start, nth, self.every, self.unit)
-        copy.end = future(self.end, nth, self.every, self.unit)
-        return copy
+        return super(Timely, self).save(*args, **kwargs)
