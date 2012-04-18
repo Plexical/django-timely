@@ -9,4 +9,7 @@
 
 #### Caveats
 
-Some assembly required - description coming soon(ish).
+- *See above about rushed software.*
+- Some assembly required - description coming soon(ish).
+- Test suite not provided yet - it's tested from within an in-house
+  app for now.
