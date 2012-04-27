@@ -97,6 +97,17 @@ class Repetition(models.Model):
             model.end += delta_end
             model.save(cascade=False) # is this ok???
 
+def nominalize(dt, minute=0):
+    """
+    Returns a new `datetime` object with a nominal time set on it
+    suitable for full day events (i.e. we don't care about the time
+    part of `datetime`).
+
+    The `minute` parameter can be used to add an extra minute if the
+    `datetime` is the end time.
+    """
+    return datetime(dt.year, dt.month, dt.day, 2, minute, 0)
+
 class Timely(models.Model):
 
     objects = TimelyManager()
@@ -117,15 +128,9 @@ class Timely(models.Model):
             self.end = self.start
 
         if self.day:
-            self.start = datetime(self.start.year,
-                                  self.start.month,
-                                  self.start.day,
-                                  0, 1, 0)
+            self.start = nominalize(self.start)
         if self.day and self.end:
-            self.end = datetime(self.end.year,
-                                self.end.month,
-                                self.end.day,
-                                23, 59, 59)
+            self.end = nominalize(self.end, 1)
 
         if kwargs.pop('cascade', True):
             try:
