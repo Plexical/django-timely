@@ -33,14 +33,14 @@ def future(pt, nth, every, unit):
 
 class TimelyManager(models.Manager):
 
-    def period(self, start, end=None):
-        if isinstance(start, basestring):
-            start = apptime(start)
+    def period(self, after, end=None):
+        if isinstance(after, basestring):
+            after = apptime(after)
         if isinstance(end, basestring):
             end = apptime(end)
         if end is None:
             end = apptime('2200-01-01')
-        return (self.filter(start__gte=start)
+        return (self.filter(end__gte=after)
                 .filter(start__lt=end)
                 .order_by('start'))
 
