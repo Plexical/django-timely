@@ -113,6 +113,7 @@ class Timely(models.Model):
     objects = TimelyManager()
 
     class Meta:
+        ordering = ['start']
         abstract = True
 
     start = models.DateTimeField(_("start"))
